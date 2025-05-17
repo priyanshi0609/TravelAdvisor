@@ -41,9 +41,11 @@ export default function Landingpage() {
             </p>
             
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+             
               <button className="px-8 py-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium text-lg">
                 Create Your Itinerary
               </button>
+              
               <button className="px-8 py-4 border border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 font-medium text-lg">
                 How It Works
               </button>
