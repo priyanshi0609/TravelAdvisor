@@ -1,114 +1,314 @@
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import GooglePlacesAutocomplete from 'react-google-autocomplete';
 import { Input } from './ui/input';
-import { Button } from './ui/button'; 
-import { SelectBudgetOptions, SelectTravelesList } from './Options';
+import { Button } from './ui/button';
+import { Map, Plane, DollarSign, Users, CalendarDays, Sparkles } from 'lucide-react';
 
-export default function Createform() {
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: 'spring', stiffness: 100 }
+  }
+};
+
+// Budget options
+const SelectBudgetOptions = [
+  {
+    icon: DollarSign,
+    title: "Budget",
+    desc: "Less than $500 for activities & dining"
+  },
+  {
+    icon: DollarSign,
+    title: "Standard",
+    desc: "$500 - $1000 for activities & dining"
+  },
+  {
+    icon: DollarSign,
+    title: "Luxury",
+    desc: "$1000+ for premium experiences"
+  }
+];
+
+// Travelers options
+const SelectTravelersList = [
+  {
+    icon: Users,
+    title: "Solo",
+    desc: "Traveling on your own adventure"
+  },
+  {
+    icon: Users,
+    title: "Couple",
+    desc: "Romantic getaway for two"
+  },
+  {
+    icon: Users,
+    title: "Family",
+    desc: "Travel with children or relatives"
+  }
+];
+
+export default function CreateForm() {
   const [place, setPlace] = useState();
   const [formData, setFormData] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedBudget, setSelectedBudget] = useState(null);
+  const [selectedCompanions, setSelectedCompanions] = useState(null);
 
   const handleInputChange = (name, value) => {
-    
-    setFormData((prevData) => ({
-      ...prevData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value
     }));
   };
 
-  useEffect(() => {
-    console.log(formData);
-  }, [formData]);
+  const selectBudget = (budget) => {
+    setSelectedBudget(budget);
+    handleInputChange('budget', budget);
+  };
 
-  const OnGenerateTrip=()=>{
-    if(formData?.days>5){
-      
+  const selectCompanions = (companions) => {
+    setSelectedCompanions(companions);
+    handleInputChange('companions', companions);
+  };
+
+  const onGenerateTrip = () => {
+    if (!formData.location) {
+      alert("Please enter a destination");
       return;
     }
-    console.log(formData);
+    
+    if (!formData.days || formData.days < 1) {
+      alert("Please enter a valid number of days");
+      return;
+    }
 
-  }
+    if (formData.days > 30) {
+      alert("Maximum trip duration is 30 days");
+      return;
+    }
+    
+    if (!formData.budget) {
+      alert("Please select a budget");
+      return;
+    }
+    
+    if (!formData.companions) {
+      alert("Please select who you're traveling with");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      console.log("Generating trip for:", formData);
+      setIsSubmitting(false);
+      // Here you would navigate to results or show success
+    }, 2000);
+  };
 
   return (
-    <div className="sm:px-10 md:px-32 lg:px-56 xl:px-10 px-5 mt-10">
-      <h2 className="font-bold text-3xl">Tell us your Travel preference</h2>
-      <p className="mt-3 text-gray-500">
-        Just provide some basic information and our Trip Planner will generate a customized itinerary based on your preferences.
-      </p>
-
-      {/* Destination input */}
-      <div className="mt-20 flex flex-col gap-9">
-        <h2 className="text-xl my-3 font-medium">What is Your Destination of Choice</h2>
-        <GooglePlacesAutocomplete
-          apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
-          onPlaceSelected={(place) => {
-            setPlace(place);
-            handleInputChange('location', place.formatted_address || place.name);
-          }}
-          placeholder="Enter your destination"
-          className="p-2 border rounded w-full"
-        />
-      </div>
-
-      {/* Trip duration */}
-      <div className="mt-10">
-        <h2 className="text-xl my-3 font-medium">How many days are you Planning your trip?</h2>
-        <Input
-          placeholder="Example: 3"
-          type="number"
-          onChange={(e) => handleInputChange('days', e.target.value)}
-        />
-      </div>
-
-      {/* Budget selection */}
-      <div className="mt-10">
-        <h2 className="text-xl my-3 font-medium">What is Your Budget?</h2>
-        <p className="mt-3 text-gray-500">
-          This budget is exclusively allocated for activities and dining purposes.
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="max-w-4xl mx-auto bg-white rounded-xl shadow-xl p-8 my-8"
+    >
+      <motion.div variants={itemVariants} className="text-center mb-12">
+        <div className="flex justify-center items-center mb-4">
+          <Plane className="text-indigo-600 mr-2" size={28} />
+          <h1 className="font-bold text-4xl text-indigo-600">Travel Planner</h1>
+        </div>
+        <p className="text-gray-500 max-w-2xl mx-auto">
+          Let our AI create your perfect travel itinerary based on your preferences. Fill in the details below and we'll craft a personalized journey just for you.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
+      </motion.div>
+
+      <motion.div 
+        variants={itemVariants}
+        className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
+      >
+        <h2 className="flex items-center text-2xl font-semibold mb-4 text-indigo-800">
+          <Map className="mr-2" />
+          Destination
+        </h2>
+        <div className="relative">
+          <Map className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400 z-10" size={18} />
+          <GooglePlacesAutocomplete
+            apiKey={import.meta.env.VITE_GOOGLE_PLACES_API_KEY}
+            onPlaceSelected={(place) => {
+              setPlace(place);
+              handleInputChange('location', place.formatted_address || place.name);
+            }}
+            options={{
+              types: ['(cities)'],
+              componentRestrictions: { country: [] }
+            }}
+            defaultValue={formData?.location || ''}
+            placeholder="Enter your destination (e.g., Paris, Tokyo, New York)"
+            style={{
+              width: '100%',
+              padding: '1rem',
+              paddingLeft: '2.5rem',
+              fontSize: '1.125rem',
+              backgroundColor: 'white',
+              borderRadius: '0.5rem',
+              border: '2px solid #e2e8f0',
+              transition: 'all 0.3s ease'
+            }}
+            className="focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-lg"
+          />
+        </div>
+      </motion.div>
+
+      <motion.div 
+        variants={itemVariants}
+        className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
+      >
+        <h2 className="flex items-center text-2xl font-semibold mb-4 text-indigo-800">
+          <CalendarDays className="mr-2" />
+          Trip Duration
+        </h2>
+        <div className="relative">
+          <Input
+            placeholder="Number of days (1-30)"
+            type="number"
+            min="1"
+            max="30"
+            className="p-4 pl-10 text-lg bg-white border-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-lg transition-all duration-300"
+            onChange={(e) => handleInputChange('days', e.target.value)}
+          />
+          <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400" size={18} />
+        </div>
+      </motion.div>
+
+      <motion.div 
+        variants={itemVariants}
+        className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
+      >
+        <h2 className="flex items-center text-2xl font-semibold mb-4 text-indigo-800">
+          <DollarSign className="mr-2" />
+          Budget
+        </h2>
+        <p className="text-gray-500 mb-6">
+          This budget is exclusively allocated for activities and dining during your trip.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {SelectBudgetOptions.map((item, index) => {
             const Icon = item.icon;
+            const isSelected = selectedBudget === item.title;
+            
             return (
-              <div
+              <motion.div
                 key={index}
-                className="p-4 border rounded-lg hover:shadow cursor-pointer"
-                onClick={() => handleInputChange('budget', item.title)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${
+                  isSelected 
+                    ? 'border-indigo-600 shadow-md bg-indigo-50' 
+                    : 'border-gray-200 hover:border-indigo-300'
+                }`}
+                onClick={() => selectBudget(item.title)}
               >
-                <Icon className="text-4xl text-blue-600 mb-3" />
-                <h2 className="font-bold text-lg">{item.title}</h2>
-                <h2 className="text-sm text-gray-500">{item.desc}</h2>
-              </div>
+                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${
+                  isSelected ? 'bg-indigo-600' : 'bg-indigo-100'
+                }`}>
+                  <Icon className={isSelected ? 'text-white' : 'text-indigo-600'} size={24} />
+                </div>
+                <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Person selection */}
-      <div className="mt-10">
-        <h2 className="text-xl my-3 font-medium">Who do you plan on travelling with on your next adventure?</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 mt-5">
-          {SelectTravelesList.map((item, index) => {
+      <motion.div 
+        variants={itemVariants}
+        className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
+      >
+        <h2 className="flex items-center text-2xl font-semibold mb-4 text-indigo-800">
+          <Users className="mr-2" />
+          Travel Companions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {SelectTravelersList.map((item, index) => {
             const Icon = item.icon;
+            const isSelected = selectedCompanions === item.title;
+            
             return (
-              <div
+              <motion.div
                 key={index}
-                className="p-4 border rounded-lg hover:shadow cursor-pointer"
-                onClick={() => handleInputChange('companions', item.title)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.98 }}
+                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${
+                  isSelected 
+                    ? 'border-indigo-600 shadow-md bg-indigo-50' 
+                    : 'border-gray-200 hover:border-indigo-300'
+                }`}
+                onClick={() => selectCompanions(item.title)}
               >
-                <Icon className="text-4xl text-blue-600 mb-3" />
-                <h2 className="font-bold text-lg">{item.title}</h2>
-                <h2 className="text-sm text-gray-500">{item.desc}</h2>
-              </div>
+                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${
+                  isSelected ? 'bg-indigo-600' : 'bg-indigo-100'
+                }`}>
+                  <Icon className={isSelected ? 'text-white' : 'text-indigo-600'} size={24} />
+                </div>
+                <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                <p className="text-sm text-gray-500">{item.desc}</p>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Submit button */}
-      <div className="my-10 flex justify-end">
-        <Button onClick={OnGenerateTrip}>Generate Trip</Button>
-      </div>
-    </div>
+      <motion.div 
+        variants={itemVariants}
+        className="flex justify-center mt-10"
+      >
+        <Button
+          onClick={onGenerateTrip}
+          disabled={isSubmitting}
+          className={`py-6 px-10 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-xl transition-all duration-300 transform ${
+            isSubmitting ? 'opacity-75' : 'hover:scale-105'
+          } flex items-center justify-center min-w-[200px]`}
+        >
+          {isSubmitting ? (
+            <>
+              <div className="animate-spin mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+              Creating...
+            </>
+          ) : (
+            <>
+              <Sparkles className="mr-2" size={20} />
+              Generate Trip
+            </>
+          )}
+        </Button>
+      </motion.div>
+
+      <motion.div
+        variants={itemVariants} 
+        className="text-center text-gray-400 mt-8 text-sm"
+      >
+        Our AI analyzes thousands of destinations to craft the perfect itinerary 
+        tailored to your preferences, budget, and travel style.
+      </motion.div>
+    </motion.div>
   );
 }
