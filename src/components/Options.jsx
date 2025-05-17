@@ -30,6 +30,16 @@ export const SelectTravelesList = [
         icon: Users,
         people: '3 to 5 people',
     },
+    {  
+        
+        id: 4,
+        title: 'Friends',
+        desc: 'A bunch of thrill-seekers',
+        icon: Users,
+        people: '6 to 7 people',
+    },
+
+    
 ];
 
 export const SelectBudgetOptions = [
