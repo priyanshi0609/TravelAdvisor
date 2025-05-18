@@ -4,6 +4,8 @@ import GooglePlacesAutocomplete from 'react-google-autocomplete';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Map, Plane, DollarSign, Users, CalendarDays, Sparkles } from 'lucide-react';
+import { SelectBudgetOptions } from './Options';
+import { SelectTravelesList } from './Options';
 
 // Animation variants
 const containerVariants = {
@@ -25,43 +27,6 @@ const itemVariants = {
   }
 };
 
-// Budget options
-const SelectBudgetOptions = [
-  {
-    icon: DollarSign,
-    title: "Budget",
-    desc: "Less than $500 for activities & dining"
-  },
-  {
-    icon: DollarSign,
-    title: "Standard",
-    desc: "$500 - $1000 for activities & dining"
-  },
-  {
-    icon: DollarSign,
-    title: "Luxury",
-    desc: "$1000+ for premium experiences"
-  }
-];
-
-// Travelers options
-const SelectTravelersList = [
-  {
-    icon: Users,
-    title: "Solo",
-    desc: "Traveling on your own adventure"
-  },
-  {
-    icon: Users,
-    title: "Couple",
-    desc: "Romantic getaway for two"
-  },
-  {
-    icon: Users,
-    title: "Family",
-    desc: "Travel with children or relatives"
-  }
-];
 
 export default function CreateForm() {
   const [place, setPlace] = useState();
@@ -98,8 +63,8 @@ export default function CreateForm() {
       return;
     }
 
-    if (formData.days > 30) {
-      alert("Maximum trip duration is 30 days");
+    if (formData.days >10 ) {
+      alert("Maximum trip duration is 10 days");
       return;
     }
     
@@ -248,7 +213,7 @@ export default function CreateForm() {
           Travel Companions
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {SelectTravelersList.map((item, index) => {
+          {SelectTravelesList.map((item, index) => {
             const Icon = item.icon;
             const isSelected = selectedCompanions === item.title;
             
