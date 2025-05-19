@@ -6,6 +6,8 @@ import { Button } from './ui/button';
 import { Map, Plane, DollarSign, Users, CalendarDays, Sparkles } from 'lucide-react';
 import { SelectBudgetOptions } from './Options';
 import { SelectTravelesList } from './Options';
+import { AI_PROMPT } from './Options';
+import { Chatsession } from './service/AImodel'
 
 // Animation variants
 const containerVariants = {
@@ -77,6 +79,15 @@ export default function CreateForm() {
       alert("Please select who you're traveling with");
       return;
     }
+
+    const FINAL_PROMPT= AI_PROMPT
+    .replace('{location}',formData.location)
+    .replace('{totalDays}', formData.days)
+    .replace('{travelers}',formData.companions)
+    .replace('{budget}',formData.budget)
+    .replace('{totalDays}', formData.days)
+    console.log(FINAL_PROMPT);
+    const result= await Chatsession
     
     setIsSubmitting(true);
     
