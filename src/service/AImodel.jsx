@@ -1,34 +1,68 @@
-const {
-    GoogleGenerativeAI,
-    HarmCategory,
-    HarmBlockThreshold,
-}= require("@google/genai");
+// src/service/AImodel.jsx
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apikey =import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
-const genAI= new GoogleGenerativeAI(apikey);
+// 🔐 Gemini API Key from Vite environment
+const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(API_KEY);
 
-const model=genAI.getGenerativeModel({
-    model:"gemini-1.5-flash",
-});
+// This function sends the prompt and returns the parsed JSON response
+export async function generateItinerary(location, days, groupType, budgetType) {
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-const generationConfig={
-    temperature:1,
-    topP:0.95,
-    topK:64,
-    maxOutputTokens:8192,
-    responseMimeType: "application/json",
+  const prompt = `Generate a travel plan for Location: ${location}, for ${days} days for ${groupType} with a ${budgetType} budget. 
+Give me a hotel options list with:
+  - Hotel name
+  - Address
+  - Price
+  - Hotel image URL
+  - Geo coordinates
+  - Rating
+  - Description
 
-};
+Also, suggest a day-by-day itinerary with:
+  - Place name
+  - Place details
+  - Image URL
+  - Geo coordinates
+  - Ticket pricing
+  - Rating
+  - Travel time
+  - Best time to visit
 
-export const chatSession =model.startChat({
-    generationConfig,
-    history:[
-        
-            role:'user',
-            parts:[
-                {text:"Generate Travel Plan for Loaction : Las Vegas, for 3 days for couple with a Cheap budget , give me a hotels options list with HotelName,Hotel address,Price,hotel image url , geo coordinates , rating , descriptions and suggest itinerary with placename, place details , place image url , geo coordinates , ticket pricing , rating , time travel each of the loaction for 3 days with each day plan with best time to visit in JSON format."},
-            ],
-            ]
-        }
-    ]
-})
+🔒 Return **only** a valid JSON inside a markdown code block like this:
+\`\`\`json
+{
+  "hotels": [...],
+  "itinerary": {
+    "day1": [...],
+    "day2": [...]
+  }
+}
+\`\`\`
+
+DO NOT include any other explanation, note, or commentary.`;
+
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    const response = await result.response;
+    const text = await response.text();
+
+    // Extract the JSON inside a code block if present
+    const jsonMatch = text.match(/```json\s*([\s\S]*?)\s*```/);
+    const jsonText = jsonMatch ? jsonMatch[1] : text.match(/\{[\s\S]*\}/)?.[0];
+
+    if (!jsonText) {
+      throw new Error("No valid JSON found in the response.");
+    }
+
+    const data = JSON.parse(jsonText);
+    return data;
+
+  } catch (error) {
+    console.error("Error generating itinerary:", error);
+    return null;
+  }
+}

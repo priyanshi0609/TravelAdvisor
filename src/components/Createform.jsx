@@ -7,7 +7,7 @@ import { Map, Plane, DollarSign, Users, CalendarDays, Sparkles } from 'lucide-re
 import { SelectBudgetOptions } from './Options';
 import { SelectTravelesList } from './Options';
 import { AI_PROMPT } from './Options';
-import { Chatsession } from './service/AImodel'
+import { generateItinerary } from '../service/AImodel';
 
 // Animation variants
 const containerVariants = {
@@ -36,6 +36,7 @@ export default function CreateForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBudget, setSelectedBudget] = useState(null);
   const [selectedCompanions, setSelectedCompanions] = useState(null);
+  const [itinerary, setItinerary] = useState(null); 
 
   const handleInputChange = (name, value) => {
     setFormData((prev) => ({
@@ -54,53 +55,50 @@ export default function CreateForm() {
     handleInputChange('companions', companions);
   };
 
-  const onGenerateTrip = () => {
+  const onGenerateTrip = async () => {
     if (!formData.location) {
       alert("Please enter a destination");
       return;
     }
-    
-    if (!formData.days || formData.days < 1) {
-      alert("Please enter a valid number of days");
+
+    if (!formData.days || formData.days < 1 || formData.days > 10) {
+      alert("Please enter a valid number of days (1–10)");
       return;
     }
 
-    if (formData.days >10 ) {
-      alert("Maximum trip duration is 10 days");
-      return;
-    }
-    
     if (!formData.budget) {
       alert("Please select a budget");
       return;
     }
-    
+
     if (!formData.companions) {
-      alert("Please select who you're traveling with");
+      alert("Please select your travel companions");
       return;
     }
 
-    const FINAL_PROMPT= AI_PROMPT
-    .replace('{location}',formData.location)
-    .replace('{totalDays}', formData.days)
-    .replace('{travelers}',formData.companions)
-    .replace('{budget}',formData.budget)
-    .replace('{totalDays}', formData.days)
-    console.log(FINAL_PROMPT);
-    const result= await Chatsession
-    
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Generating trip for:", formData);
-      setIsSubmitting(false);
-      // Here you would navigate to results or show success
-    }, 2000);
-  };
 
+    try {
+      const result = await generateItinerary(
+        formData.location,
+        formData.days,
+        formData.companions,
+        formData.budget
+      );
+
+      setItinerary(result);
+      console.log("Generated Itinerary:", result);
+      alert("Trip itinerary generated! Check console for details.");
+      // You could navigate to a results page here instead
+    } catch (error) {
+      console.error("Itinerary generation failed:", error);
+      alert("Failed to generate itinerary. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
-    <motion.div 
+    <><motion.div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -116,7 +114,7 @@ export default function CreateForm() {
         </p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
       >
@@ -131,7 +129,7 @@ export default function CreateForm() {
             onPlaceSelected={(place) => {
               setPlace(place);
               handleInputChange('location', place.formatted_address || place.name);
-            }}
+            } }
             options={{
               types: ['(cities)'],
               componentRestrictions: { country: [] }
@@ -148,12 +146,11 @@ export default function CreateForm() {
               border: '2px solid #e2e8f0',
               transition: 'all 0.3s ease'
             }}
-            className="focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-lg"
-          />
+            className="focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-lg" />
         </div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
       >
@@ -168,13 +165,12 @@ export default function CreateForm() {
             min="1"
             max="30"
             className="p-4 pl-10 text-lg bg-white border-2 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 rounded-lg transition-all duration-300"
-            onChange={(e) => handleInputChange('days', e.target.value)}
-          />
+            onChange={(e) => handleInputChange('days', e.target.value)} />
           <CalendarDays className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400" size={18} />
         </div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
       >
@@ -189,22 +185,18 @@ export default function CreateForm() {
           {SelectBudgetOptions.map((item, index) => {
             const Icon = item.icon;
             const isSelected = selectedBudget === item.title;
-            
+
             return (
               <motion.div
                 key={index}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${
-                  isSelected 
-                    ? 'border-indigo-600 shadow-md bg-indigo-50' 
-                    : 'border-gray-200 hover:border-indigo-300'
-                }`}
+                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${isSelected
+                    ? 'border-indigo-600 shadow-md bg-indigo-50'
+                    : 'border-gray-200 hover:border-indigo-300'}`}
                 onClick={() => selectBudget(item.title)}
               >
-                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${
-                  isSelected ? 'bg-indigo-600' : 'bg-indigo-100'
-                }`}>
+                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${isSelected ? 'bg-indigo-600' : 'bg-indigo-100'}`}>
                   <Icon className={isSelected ? 'text-white' : 'text-indigo-600'} size={24} />
                 </div>
                 <h3 className="font-bold text-lg mb-1">{item.title}</h3>
@@ -215,7 +207,7 @@ export default function CreateForm() {
         </div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-indigo-50 p-6 rounded-lg mb-10 border-l-4 border-indigo-600"
       >
@@ -227,22 +219,18 @@ export default function CreateForm() {
           {SelectTravelesList.map((item, index) => {
             const Icon = item.icon;
             const isSelected = selectedCompanions === item.title;
-            
+
             return (
               <motion.div
                 key={index}
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
-                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${
-                  isSelected 
-                    ? 'border-indigo-600 shadow-md bg-indigo-50' 
-                    : 'border-gray-200 hover:border-indigo-300'
-                }`}
+                className={`p-6 bg-white rounded-xl border-2 transition-all duration-300 cursor-pointer ${isSelected
+                    ? 'border-indigo-600 shadow-md bg-indigo-50'
+                    : 'border-gray-200 hover:border-indigo-300'}`}
                 onClick={() => selectCompanions(item.title)}
               >
-                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${
-                  isSelected ? 'bg-indigo-600' : 'bg-indigo-100'
-                }`}>
+                <div className={`p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4 ${isSelected ? 'bg-indigo-600' : 'bg-indigo-100'}`}>
                   <Icon className={isSelected ? 'text-white' : 'text-indigo-600'} size={24} />
                 </div>
                 <h3 className="font-bold text-lg mb-1">{item.title}</h3>
@@ -253,16 +241,14 @@ export default function CreateForm() {
         </div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="flex justify-center mt-10"
       >
         <Button
           onClick={onGenerateTrip}
           disabled={isSubmitting}
-          className={`py-6 px-10 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-xl transition-all duration-300 transform ${
-            isSubmitting ? 'opacity-75' : 'hover:scale-105'
-          } flex items-center justify-center min-w-[200px]`}
+          className={`py-6 px-10 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium rounded-xl transition-all duration-300 transform ${isSubmitting ? 'opacity-75' : 'hover:scale-105'} flex items-center justify-center min-w-[200px]`}
         >
           {isSubmitting ? (
             <>
@@ -278,13 +264,19 @@ export default function CreateForm() {
         </Button>
       </motion.div>
 
-      <motion.div
-        variants={itemVariants} 
-        className="text-center text-gray-400 mt-8 text-sm"
-      >
-        Our AI analyzes thousands of destinations to craft the perfect itinerary 
-        tailored to your preferences, budget, and travel style.
-      </motion.div>
+      {itinerary && (
+        <motion.div className="mt-10 text-sm text-green-600 text-center">
+          ✅ Trip generated! (You can render itinerary details here or navigate.)
+        </motion.div>
+      )}
     </motion.div>
+    <motion.div
+      variants={itemVariants}
+      className="text-center text-gray-400 mt-8 text-sm"
+    >
+        Our AI analyzes thousands of destinations to craft the perfect itinerary
+        tailored to your preferences, budget, and travel style.
+      </motion.div></>
+    
   );
 }
