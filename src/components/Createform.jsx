@@ -14,7 +14,6 @@ import {
   DialogTitle
 } from "./ui/dialog";
 import { FcGoogle } from "react-icons/fc";
-import { GoogleLogin } from '@react-oauth/google';
 
 // Animation variants
 const containerVariants = {
@@ -62,10 +61,10 @@ export default function CreateForm() {
     handleInputChange('companions', companions);
   };
 
-  const login = GoogleLogin({
-    onSuccess:(codeResp)=>console.log(codeResp),
-    onError:(error)=> console.log(error)
-  })
+  // const login = useGoogleLogin({
+  //   onSuccess: (codeResp) => console.log(codeResp),
+  //   onError: (error) => console.log(error)
+  // })
 
   const onGenerateTrip = async () => {
     const user = localStorage.getItem('user');
@@ -73,11 +72,11 @@ export default function CreateForm() {
 
 
     // If no user, show dialog and exit function
-   if (!user || user === "null" || user === undefined || user === "") {
-  setOpenDialog(true);
-  console.warn("Blocked trip generation: no user found in localStorage.");
-  return; 
-}
+    if (!user || user === "null" || user === undefined || user === "") {
+      setOpenDialog(true);
+      console.warn("Blocked trip generation: no user found in localStorage.");
+      return;
+    }
 
     // Form validations
     if (!formData.location) {
@@ -273,18 +272,20 @@ export default function CreateForm() {
 
         {/* Dialog shown when no user */}
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-          <DialogContent>
+          <DialogContent className="bg-white rounded-xl shadow-xl p-6 max-w-md mx-auto border border-gray-200">
             <DialogHeader>
-              <DialogTitle>Not Logged In</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-xl font-bold text-gray-800">Not Logged In</DialogTitle>
+              <DialogDescription className="text-gray-600 mt-2">
                 Please sign in to use the AI travel planner and generate a personalized itinerary.
-                <Button 
-                  onClick={login}
-                  className="w-full mt-5 flex gap-4 items-center">
-                  <FcGoogle className='h-7 w-7'/>
-                  Sign In with Google</Button>
               </DialogDescription>
             </DialogHeader>
+
+            <Button
+              //onClick={login}
+              className="w-full mt-6 flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-all duration-200">
+              <FcGoogle className='h-6 w-6' />
+              Sign In with Google
+            </Button>
           </DialogContent>
         </Dialog>
 
