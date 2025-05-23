@@ -1,12 +1,40 @@
-# React + Vite
+# 🌍 Travel Advisor – AI-Powered Itinerary Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Travel Advisor is a smart web application that creates personalized travel itineraries based on your preferences using AI. Whether you're planning a solo trip, a family vacation, or a group adventure, Travel Advisor helps you plan efficiently and explore better.
 
-Currently, two official plugins are available:
+## 🚀 Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✈️ **AI-Powered Trip Generator** – Generates detailed itineraries using Gemini AI based on destination, duration, budget, and group type.
+- 🔍 **Google Places Autocomplete** – Helps users quickly find and select travel destinations with real-time suggestions.
+- 🔐 **Secure Authentication** – Integrated Google Sign-In using Firebase for safe and seamless user login.
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+## 🛠 Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| **React.js** | Frontend framework |
+| **Tailwind CSS** | UI styling and responsive design |
+| **Framer Motion** | Animations and transitions |
+| **Firebase Auth** | User authentication |
+| **Google Places API** | Location autocomplete |
+| **Gemini API (Google Generative AI)** | AI-generated travel plans |
+
+## 🔧 Installation & Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/travel-advisor.git
+cd travel-advisor
+
+# Install dependencies
+npm install
+
+# Create a `.env` file and add your API keys
+VITE_GEMINI_API_KEY=your_gemini_api_key
+VITE_GOOGLE_PLACES_API_KEY=your_google_places_api_key
+
+# Run the development server
+npm run dev
