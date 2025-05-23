@@ -26,7 +26,7 @@ Travel Advisor is a smart web application that creates personalized travel itine
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/travel-advisor.git
+git clone https://github.com/priyanshi0609/TravelAdvisor.git
 cd travel-advisor
 
 # Install dependencies
