@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import GooglePlacesAutocomplete from 'react-google-autocomplete';
+import { auth } from '../firebase/firebase';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Map, Plane, DollarSign, Users, CalendarDays, Sparkles } from 'lucide-react';
@@ -61,21 +63,45 @@ export default function CreateForm() {
     handleInputChange('companions', companions);
   };
 
-  // const login = useGoogleLogin({
-  //   onSuccess: (codeResp) => console.log(codeResp),
-  //   onError: (error) => console.log(error)
-  // })
+  // Firebase Google login configuration
+  const provider = new GoogleAuthProvider();
+  
+  const login = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      console.log("Login successful:", user);
+      
+      // Save user data to localStorage
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Close the dialog
+      setOpenDialog(false);
+      alert("Login successful! You can now generate your trip.");
+      
+    } catch (error) {
+      console.log("Login error:", error);
+      alert("Login failed. Please try again.");
+    }
+  };
 
   const onGenerateTrip = async () => {
     const user = localStorage.getItem('user');
     console.log("user from localStorage:", user);
 
-
-    // If no user, show dialog and exit function
-    if (!user || user === "null" || user === undefined || user === "") {
+    // Check if user exists and is valid
+    if (!user || user === "null" || user === "undefined" || user === "") {
       setOpenDialog(true);
       console.warn("Blocked trip generation: no user found in localStorage.");
-      return;
+      return; // Stop here - don't generate itinerary
     }
 
     // Form validations
@@ -99,6 +125,7 @@ export default function CreateForm() {
       return;
     }
 
+    // Only reach here if user is logged in and form is valid
     setIsSubmitting(true);
 
     try {
@@ -111,7 +138,7 @@ export default function CreateForm() {
 
       setItinerary(result);
       console.log("Generated Itinerary:", result);
-      alert("Trip itinerary generated! Check console for details.");
+      alert("Trip itinerary generated successfully! Check console for details.");
     } catch (error) {
       console.error("Itinerary generation failed:", error);
       alert("Failed to generate itinerary. Please try again.");
@@ -274,14 +301,14 @@ export default function CreateForm() {
         <Dialog open={openDialog} onOpenChange={setOpenDialog}>
           <DialogContent className="bg-white rounded-xl shadow-xl p-6 max-w-md mx-auto border border-gray-200">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-800">Not Logged In</DialogTitle>
+              <DialogTitle className="text-xl font-bold text-gray-800">Login Required</DialogTitle>
               <DialogDescription className="text-gray-600 mt-2">
-                Please sign in to use the AI travel planner and generate a personalized itinerary.
+                Please sign in with Google to use the AI travel planner and generate a personalized itinerary.
               </DialogDescription>
             </DialogHeader>
 
             <Button
-              //onClick={login}
+              onClick={login}
               className="w-full mt-6 flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition-all duration-200">
               <FcGoogle className='h-6 w-6' />
               Sign In with Google
